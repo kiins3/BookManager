@@ -2,7 +2,9 @@ package com.bookmanager.Repositories;
 
 import com.bookmanager.Models.Book;
 import com.bookmanager.Models.BookTitle;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,6 +20,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     List<Book> findByBookTitleId(long id);
 
-
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Book> findFirstByBookTitleAndStatus(BookTitle bookTitle, String available);
+
+    Optional<Book> findByTitle(String title);
 }

@@ -34,5 +34,8 @@ public class GetUserResponse {
 
     private String status;
 
+    private int violationCount;
+
+
     private List<BorrowCardSumaryResponse> borrowCard;
 }

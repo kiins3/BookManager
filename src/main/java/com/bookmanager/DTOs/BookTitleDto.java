@@ -10,6 +10,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 
 public class BookTitleDto {
+    private Long id;
+
     private String title;
 
     private String author;
@@ -21,4 +23,6 @@ public class BookTitleDto {
     private String status;
 
     private int copies;
+
+    private double compensationCost;
 }

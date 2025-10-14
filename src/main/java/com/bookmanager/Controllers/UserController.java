@@ -36,8 +36,8 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/getuserbyid")
-    ResponseEntity<BaseResponse<GetUserResponse>> getUserById(@RequestParam long id) {
+    @GetMapping("/getuserbyid/{id}")
+    ResponseEntity<BaseResponse<GetUserResponse>> getUserById(@PathVariable long id) {
         BaseResponse<GetUserResponse> response = new BaseResponse<>();
         response.setCode(ErrorCode.SUCCESS.getCode());
         response.setMessage(ErrorCode.SUCCESS.getMessage());
@@ -45,8 +45,8 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/getuserbyname")
-    ResponseEntity<BaseResponse<List<GetUserResponse>>> getUserByName(@RequestParam String name) {
+    @GetMapping("/getuserbyname/{name}")
+    ResponseEntity<BaseResponse<List<GetUserResponse>>> getUserByName(@PathVariable String name) {
         BaseResponse<List<GetUserResponse>> response = new BaseResponse<>();
         response.setCode(ErrorCode.SUCCESS.getCode());
         response.setMessage(ErrorCode.SUCCESS.getMessage());
@@ -68,8 +68,8 @@ public class UserController {
         return userService.seachUserByKeyWord((String) keyword);
     }*/
 
-    @DeleteMapping("/deleteuser")
-    ResponseEntity<BaseResponse<User>> deleteUserById(@RequestParam long id) {
+    @DeleteMapping("/deleteuser/{id}")
+    ResponseEntity<BaseResponse<User>> deleteUserById(@PathVariable long id) {
         ErrorCode result = userService.deleteUserById(id);
         BaseResponse<User> response = new BaseResponse<>();
             response.setCode(result.getCode());
@@ -87,13 +87,13 @@ public class UserController {
     }
 
     @GetMapping("/myinfo")
-    public ResponseEntity<BaseResponse<UserInfoResponse>> getUserInfoByEmail(HttpServletRequest request) throws ParseException, JOSEException {
+    public ResponseEntity<BaseResponse<UserInfoResponse>> getUserInfo(HttpServletRequest request) throws ParseException, JOSEException {
         String token = request.getHeader("Authorization").substring(7);
         SignedJWT signedJWT = SignedJWT.parse(token);
         String email = signedJWT.getJWTClaimsSet().getStringClaim("email");
 
         BaseResponse <UserInfoResponse> response = new BaseResponse<>();
-        response.setResult(userService.getUserInfoByEmail(email));
+        response.setResult(userService.getUserInfo(email));
         response.setCode(ErrorCode.SUCCESS.getCode());
         response.setMessage(ErrorCode.SUCCESS.getMessage());
         return ResponseEntity.ok(response);

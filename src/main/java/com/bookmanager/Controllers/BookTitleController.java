@@ -20,8 +20,8 @@ public class BookTitleController {
     @Autowired
     BookTitleService bookTitleService;
 
-    @GetMapping("/getbooktitlebyid")
-    BaseResponse<Optional<BookTitle>> getBookTitleById(@RequestParam Long id) {
+    @GetMapping("/getbooktitlebyid/{id}")
+    BaseResponse<Optional<BookTitle>> getBookTitleById(@PathVariable Long id) {
         BaseResponse<Optional<BookTitle>> response = new BaseResponse<>();
         response.setResult(bookTitleService.getBookTitleById(id));
         response.setCode(ErrorCode.SUCCESS.getCode());
@@ -38,10 +38,10 @@ public class BookTitleController {
         return response;
     }
 
-    @GetMapping("/getbooktitlebytitle")
-    BaseResponse<List<BookTitle>> getBookTitleByTitle(@RequestParam String Title) {
+    @GetMapping("/getbooktitlebytitle/{title}")
+    BaseResponse<List<BookTitle>> getBookTitleByTitle(@PathVariable String title) {
         BaseResponse<List<BookTitle>> response = new BaseResponse<>();
-        response.setResult(bookTitleService.getBookTitleByTitle(Title));
+        response.setResult(bookTitleService.getBookTitleByTitle(title));
         response.setCode(ErrorCode.SUCCESS.getCode());
         response.setMessage(ErrorCode.SUCCESS.getMessage());
         return response;
@@ -56,7 +56,7 @@ public class BookTitleController {
         return response;
     }
 
-    @PutMapping("/putbooktitle/{id}")
+    @PutMapping("/putbooktitle")
     ResponseEntity<BaseResponse<UpdateBookTitleResponse>> updateBookTitle(@RequestBody BookTitleUpdateRequest request) {
         BaseResponse<UpdateBookTitleResponse> response = new BaseResponse<>();
         response.setResult(bookTitleService.updateBookTitle(request));
@@ -65,12 +65,12 @@ public class BookTitleController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/deletebooktitle")
-    ResponseEntity<BaseResponse<BookTitle>> deleteBookTitle(@RequestParam long id) {
-        BaseResponse<BookTitle> response = new BaseResponse<>();
-        response.setResult(bookTitleService.deleteBookTitleById(id));
-        response.setCode(ErrorCode.BOOKTITLE_DELETED.getCode());
-        response.setMessage(ErrorCode.BOOKTITLE_DELETED.getMessage());
+    @DeleteMapping("/deletebooktitle/{id}")
+    ResponseEntity<BaseResponse<ErrorCode>> deleteBookTitle(@PathVariable long id) {
+        ErrorCode result = bookTitleService.deleteBookTitleById(id);
+        BaseResponse<ErrorCode> response = new BaseResponse<>();
+        response.setCode(result.getCode());
+        response.setMessage(result.getMessage());
         return ResponseEntity.ok(response);
     }
 }

@@ -116,7 +116,7 @@ public class UserService {
         return userMapper.toUpdateUserResponse(userUpdate);
     }
 
-    public UserInfoResponse getUserInfoByEmail(String email) {
+    public UserInfoResponse getUserInfo(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RException(ErrorCode.USER_NOT_FOUND));
 
@@ -130,6 +130,7 @@ public class UserService {
                         .address(user.getAddress())
                         .phone(user.getPhone())
                         .role(user.getRole())
+                        .violationCount(user.getViolationCount())
                         .status(user.getStatus())
                         .build();
     }

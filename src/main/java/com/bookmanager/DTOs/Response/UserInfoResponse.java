@@ -28,5 +28,7 @@ public class UserInfoResponse {
 
     private String address;
 
+    private int violationCount;
+
     private String status;
 }

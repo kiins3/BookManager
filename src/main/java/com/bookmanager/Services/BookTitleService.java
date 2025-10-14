@@ -6,10 +6,13 @@ import com.bookmanager.DTOs.Response.UpdateBookTitleResponse;
 import com.bookmanager.Exception.ErrorCode;
 import com.bookmanager.Exception.RException;
 import com.bookmanager.Helpers.TextTranf;
+import com.bookmanager.Mapper.BookTitleMapper;
 import com.bookmanager.Models.Book;
 import com.bookmanager.Models.BookTitle;
 import com.bookmanager.Repositories.BookRepository;
 import com.bookmanager.Repositories.BookTitleRepository;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,8 @@ public class BookTitleService {
 
     @Autowired
     BookTitleRepository bookTitleRepository;
+    @Autowired
+    private BookTitleMapper bookTitleMapper;
 
     public Optional<BookTitle> getBookTitleById(long id) {
         BookTitle bookTitle = bookTitleRepository.findById(id)
@@ -88,28 +93,20 @@ public class BookTitleService {
         BookTitle bookTitleUpdate = bookTitleRepository.findById(request.getId())
                 .orElseThrow(() -> new RException(ErrorCode.BOOKTITLE_NOT_FOUND));
 
-        bookTitleUpdate.setTitle(request.getTitle());
-        bookTitleUpdate.setAuthor(request.getAuthor());
-        bookTitleUpdate.setPublicationDate(request.getPublicationDate());
-        bookTitleUpdate.setPublisher(request.getPublisher());
+        bookTitleMapper.UpdateBookTitle(request,bookTitleUpdate);
+
         bookTitleRepository.save(bookTitleUpdate);
-        return new UpdateBookTitleResponse(
-                bookTitleUpdate.getTitle(),
-                bookTitleUpdate.getAuthor(),
-                bookTitleUpdate.getPublisher(),
-                bookTitleUpdate.getPublicationDate(),
-                bookTitleUpdate.getCompensationCost(),
-                bookTitleUpdate.getStatus()
-        );
+
+        return bookTitleMapper.toUpdateBookTitleResponse(bookTitleUpdate);
     }
 
-    public BookTitle deleteBookTitleById(long id) {
+    public ErrorCode deleteBookTitleById(long id) {
         BookTitle booktitle = bookTitleRepository.findById(id)
                 .orElseThrow(() -> new RException(ErrorCode.BOOKTITLE_NOT_FOUND));
 
         List<Book>  books = bookRepository.findByBookTitleId(id);
         bookRepository.deleteAll(books);
-
-        return bookTitleRepository.deleteBookTitleById(booktitle);
+        bookTitleRepository.delete(booktitle);
+        return ErrorCode.BOOKTITLE_DELETED;
     }
 }

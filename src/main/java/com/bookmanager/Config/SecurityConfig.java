@@ -5,6 +5,7 @@ import com.bookmanager.Exception.RException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,16 +32,26 @@ public class SecurityConfig {
     //private final String[] ENDPOINTS = {"/book/**","/users/**","/login/**","/library/**"};
     private final String[] PUBLIC_ENDPOINT = {"/login/token", "/login/introspect"};
     private final String[] USER_ENDPOINT = {"/books/getallbooks", "/books/getbookbytitle"
-            ,"/booktitles/getallbooktitle","/booktitles/getbooktitlebytitle","/library/borrowbook","/library/compensation","/library/userreturnbook"};
+            ,"/booktitles/getallbooktitle","/booktitles/getbooktitlebytitle","/library/borrowbook"
+            ,"/library/compensation","/library/userreturnbook","/users/myinfo","/library/my-borrows"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(PUBLIC_ENDPOINT).permitAll()
-                        .requestMatchers(USER_ENDPOINT).access(new RoleAndStatusAuthorizationManager("USER", "ACTIVE"))
+                        .requestMatchers(USER_ENDPOINT)
+                        .access((auth, context) -> {
+                            var authorities = auth.get().getAuthorities();
+                            boolean isActiveUser = authorities.stream().anyMatch(a ->
+                                    a.getAuthority().equals("ROLE_USER") &&
+                                            authorities.stream().anyMatch(b -> b.getAuthority().equals("STATUS_ACTIVE")));
+                            boolean isAdminOrLibrarian = authorities.stream().anyMatch(a ->
+                                    a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_LIBRARIAN"));
+                            return new AuthorizationDecision(isActiveUser || isAdminOrLibrarian);
+                        })
+
                         .requestMatchers("/books/**","/booktitles/**","/library/**").hasAnyAuthority("ROLE_LIBRARIAN","ROLE_ADMIN")
                         .requestMatchers("/users/**").hasAuthority("ROLE_ADMIN")
-
                         .anyRequest().authenticated());
 
         httpSecurity.exceptionHandling(ex -> ex

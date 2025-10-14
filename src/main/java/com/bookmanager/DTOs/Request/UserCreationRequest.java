@@ -1,5 +1,6 @@
 package com.bookmanager.DTOs.Request;
 
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -20,6 +21,10 @@ public class UserCreationRequest {
 
     private String username;
 
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$",
+            message = "Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character"
+    )
     private String password;
 
     private String phone;
@@ -29,4 +34,6 @@ public class UserCreationRequest {
     private String address;
 
     private String status;
+
+    private int violationCount;
 }

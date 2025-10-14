@@ -99,8 +99,8 @@ public class BookService {
                 .build();
     }
 
-    public List<GetBookByTitleResponse> findByBookTitle_Title(String Title) {
-        String normalizedTitle = TextTranf.removeVietnameseAccents(Title.toLowerCase());
+    public List<GetBookByTitleResponse> findByBookTitle_Title(String title) {
+        String normalizedTitle = TextTranf.removeVietnameseAccents(title.toLowerCase());
         List<Book> books = bookRepository.findAll();
         List<Book> bookMatched = books.stream()
                 .filter(book->{
@@ -130,7 +130,7 @@ public class BookService {
         return bookResponses;
     }
 
-    public Book deleteBookById(long id) {
+    public ErrorCode deleteBookById(long id) {
         Book book = bookRepository.findById(id).
                 orElseThrow(() -> new RException(ErrorCode.BOOK_NOT_FOUND));
 
@@ -139,7 +139,7 @@ public class BookService {
             bookTitle.setCopies(bookTitle.getCopies() - 1);
             bookTitleRepository.save(bookTitle);
         }
-
-        return bookRepository.deleteById(id);
+        bookRepository.deleteById(id);
+        return ErrorCode.BOOK_DELETED;
     }
 }

@@ -15,10 +15,6 @@ import java.time.LocalDate;
 public class ReturnBookRequest {
     private Long cardId;
 
-    private Long bookId;
-
-    private Long userId;
-
     private LocalDate returnDate;
 
     private String status;

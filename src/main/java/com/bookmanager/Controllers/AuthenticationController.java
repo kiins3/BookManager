@@ -36,12 +36,12 @@ public class AuthenticationController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/introspect")
+/*    @PostMapping("/introspect")
     ResponseEntity<BaseResponse<IntrospectResponse>> introspect(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         BaseResponse<IntrospectResponse> response = new BaseResponse<>();
         response.setResult(authenticationService.introspect(request));
         response.setResult(authenticationService.introspect(request));
         return ResponseEntity.ok(response);
-    }
+    }*/
 
 }

@@ -27,5 +27,4 @@ public class BookTitleUpdateRequest {
 
     private String status;
 
-    private int copies;
 }

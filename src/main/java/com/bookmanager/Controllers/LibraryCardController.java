@@ -1,14 +1,16 @@
 package com.bookmanager.Controllers;
 
 import com.bookmanager.DTOs.Request.Book.BorrowBookRequest;
-import com.bookmanager.DTOs.Request.Book.BookCompensationRequest;
+import com.bookmanager.DTOs.Request.Book.CompensationRequest;
 import com.bookmanager.DTOs.Request.Book.ReturnBookRequest;
 import com.bookmanager.DTOs.Request.Book.UserReturnBookRequest;
+import com.bookmanager.DTOs.Request.UpdateBorrowCardRequest;
 import com.bookmanager.DTOs.Response.*;
 import com.bookmanager.DTOs.Response.Book.BorrowBookResponse;
 import com.bookmanager.DTOs.Response.Book.ReturnBookResponse;
 import com.bookmanager.DTOs.Response.Book.UserReturnBookResponse;
 import com.bookmanager.Exception.ErrorCode;
+import com.bookmanager.Models.LibraryCard;
 import com.bookmanager.Repositories.LibraryCardRepository;
 import com.bookmanager.Services.LibraryCardService;
 import com.nimbusds.jose.JOSEException;
@@ -19,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -49,6 +50,24 @@ public class LibraryCardController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/updateborrowcard")
+    ResponseEntity<BaseResponse<UpdateBorrowCardResponse>> updateBorrowCard(@RequestBody UpdateBorrowCardRequest request){
+        BaseResponse<UpdateBorrowCardResponse> response = new BaseResponse<>();
+        response.setResult(libraryCardService.updateBorrowCard(request));
+        response.setCode(ErrorCode.SUCCESS.getCode());
+        response.setMessage(ErrorCode.SUCCESS.getMessage());
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/deleteborrowcard/{id}")
+    ResponseEntity<BaseResponse<LibraryCard>> deleteBorrowCard(@PathVariable Long id) {
+        ErrorCode result = libraryCardService.deleteBorrowCard(id);
+        BaseResponse<LibraryCard> response = new BaseResponse<>();
+        response.setCode(result.getCode());
+        response.setMessage(result.getMessage());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/userreturnbook")
     ResponseEntity<BaseResponse<UserReturnBookResponse>> getUserReturnBookResponse(@RequestBody UserReturnBookRequest request){
         BaseResponse<UserReturnBookResponse> response = new BaseResponse<>();
@@ -66,7 +85,7 @@ public class LibraryCardController {
     }
 
     @PostMapping("/compensation")
-    BaseResponse<CompensationResponse> payCompensation(@RequestBody BookCompensationRequest request){
+    BaseResponse<CompensationResponse> payCompensation(@RequestBody CompensationRequest request){
         BaseResponse<CompensationResponse> response = new BaseResponse<>();
         response.setResult(libraryCardService.payCompensation(request));
         response.setCode(ErrorCode.COMPENSATION.getCode());

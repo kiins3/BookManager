@@ -40,8 +40,8 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/getbookbyid")
-    ResponseEntity<BaseResponse<GetBookByIdResponse>> getBookById(@RequestParam long id) {
+    @GetMapping("/getbookbyid/{id}")
+    ResponseEntity<BaseResponse<GetBookByIdResponse>> getBookById(@PathVariable long id) {
         BaseResponse<GetBookByIdResponse> response = new BaseResponse<>();
         response.setResult(bookService.findById(id));
         response.setCode(ErrorCode.SUCCESS.getCode());
@@ -49,8 +49,8 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/getbookbytitle")
-    ResponseEntity<BaseResponse<List<GetBookByTitleResponse>>> findByBookTitle_Title(@RequestParam String title) {
+    @GetMapping("/getbookbytitle/{title}")
+    ResponseEntity<BaseResponse<List<GetBookByTitleResponse>>> findByBookTitle_Title(@PathVariable String title) {
         BaseResponse<List<GetBookByTitleResponse>> response = new BaseResponse<>();
         response.setResult(bookService.findByBookTitle_Title(title));
         response.setCode(ErrorCode.SUCCESS.getCode());
@@ -67,12 +67,12 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/deletebook")
-    ResponseEntity<BaseResponse<Book>> deleteBook(@RequestParam long id) {
-        BaseResponse<Book> response = new BaseResponse<>();
-        response.setResult(bookService.deleteBookById(id));
-        response.setCode(ErrorCode.BOOK_DELETED.getCode());
-        response.setMessage(ErrorCode.BOOK_DELETED.getMessage());
+    @DeleteMapping("/deletebook/{id}")
+    ResponseEntity<BaseResponse<ErrorCode>> deleteBook(@PathVariable long id) {
+        ErrorCode result = bookService.deleteBookById(id);
+        BaseResponse<ErrorCode> response = new BaseResponse<>();
+        response.setCode(result.getCode());
+        response.setMessage(result.getMessage());
         return ResponseEntity.ok(response);
     }
 }

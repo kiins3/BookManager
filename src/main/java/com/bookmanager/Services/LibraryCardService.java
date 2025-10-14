@@ -1,14 +1,16 @@
 package com.bookmanager.Services;
 
 import com.bookmanager.DTOs.Request.Book.BorrowBookRequest;
-import com.bookmanager.DTOs.Request.Book.BookCompensationRequest;
+import com.bookmanager.DTOs.Request.Book.CompensationRequest;
 import com.bookmanager.DTOs.Request.Book.ReturnBookRequest;
 import com.bookmanager.DTOs.Request.Book.UserReturnBookRequest;
+import com.bookmanager.DTOs.Request.UpdateBorrowCardRequest;
 import com.bookmanager.DTOs.Response.Book.BorrowBookResponse;
 import com.bookmanager.DTOs.Response.Book.UserReturnBookResponse;
 import com.bookmanager.DTOs.Response.CompensationResponse;
 import com.bookmanager.DTOs.Response.ListBorrowCardResponse;
 import com.bookmanager.DTOs.Response.Book.ReturnBookResponse;
+import com.bookmanager.DTOs.Response.UpdateBorrowCardResponse;
 import com.bookmanager.DTOs.Response.UserBorrowHistoryResponse;
 import com.bookmanager.Exception.ErrorCode;
 import com.bookmanager.Exception.RException;
@@ -22,6 +24,8 @@ import com.bookmanager.Repositories.LibraryCardRepository;
 import com.bookmanager.Repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -45,34 +49,47 @@ public class LibraryCardService {
 
     @Transactional
     public BorrowBookResponse borrowBook(BorrowBookRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new RException(ErrorCode.USER_NOT_FOUND));
 
+        if (currentUser.getId() != request.getUserId()) {
+            throw new RException(ErrorCode.NOT_ALLOWED);
+        }
+
+        boolean hasUnreturnedBooks = libraryCardRepository.existsByUserAndStatusIn(
+                currentUser, List.of("OVERDUE", "NEED_COMPENSATION"));
+
+        if (hasUnreturnedBooks) {
+            throw new RException(ErrorCode.UNRETURNED_BOOK);
+        }
+
         List<BookTitle> bookTitles = bookTitleRepository.findByTitle(request.getTitle());
-                if (bookTitles.isEmpty()) {
-                    throw new RException(ErrorCode.BOOKTITLE_NOT_FOUND);
-                }
+        if (bookTitles.isEmpty()) {
+            throw new RException(ErrorCode.BOOKTITLE_NOT_FOUND);
+        }
         BookTitle bookTitle = bookTitles.get(0);
 
-        Book book = bookRepository.findFirstByBookTitleAndStatus(bookTitle,"AVAILABLE")
+        Book book = bookRepository.findFirstByBookTitleAndStatus(bookTitle, "AVAILABLE")
                 .orElseThrow(() -> new RException(ErrorCode.BOOK_NOT_AVAILABLE));
 
-        if (!"AVAILABLE".equalsIgnoreCase(book.getStatus())) {
-            throw new RException(ErrorCode.BOOK_NOT_AVAILABLE);
-        }
         book.setStatus("BORROWING");
         bookRepository.save(book);
+
         LibraryCard libraryCard = LibraryCard.builder()
-                .user(user)
+                .user(currentUser)
                 .book(book)
                 .borrowDate(LocalDate.now())
                 .dueDate(LocalDate.now().plusDays(14))
                 .status("BORROWING")
                 .build();
         libraryCardRepository.save(libraryCard);
+
         return BorrowBookResponse.builder()
-                .userId(user.getId())
-                .Name(user.getName())
+                .userId(currentUser.getId())
+                .Name(currentUser.getName())
                 .bookId(book.getId())
                 .bookTitle(bookTitle.getTitle())
                 .borrowDate(libraryCard.getBorrowDate())
@@ -98,6 +115,26 @@ public class LibraryCardService {
                         .build()
                 )
                 .collect(Collectors.toList());
+    }
+
+    public UpdateBorrowCardResponse updateBorrowCard(UpdateBorrowCardRequest request) {
+        LibraryCard libraryCard = libraryCardRepository.findById(request.getId())
+                .orElseThrow(() -> new RException(ErrorCode.BORROW_CARD_NOT_FOUND));
+
+        libraryCard.setStatus(request.getStatus());
+        libraryCardRepository.save(libraryCard);
+        return UpdateBorrowCardResponse.builder()
+                .id(libraryCard.getId())
+                .status(libraryCard.getStatus())
+                .build();
+    }
+
+    public ErrorCode deleteBorrowCard(Long id) {
+        LibraryCard libraryCard = libraryCardRepository.findById(id)
+                .orElseThrow(() -> new RException(ErrorCode.BORROW_CARD_NOT_FOUND));
+
+        libraryCardRepository.deleteById(id);
+        return ErrorCode.CARD_DELETED;
     }
 
     public UserReturnBookResponse userReturnBook(UserReturnBookRequest request) {
@@ -126,19 +163,17 @@ public class LibraryCardService {
     }
 
     public ReturnBookResponse returnBook(ReturnBookRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RException(ErrorCode.USER_NOT_FOUND));
-
-        Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new RException(ErrorCode.BOOK_NOT_FOUND));
-
         LibraryCard libraryCard = libraryCardRepository.findById(request.getCardId())
                 .orElseThrow(() -> new RException(ErrorCode.BORROW_CARD_NOT_FOUND));
 
         boolean isOverDue = request.getReturnDate().isAfter(libraryCard.getDueDate());
         boolean isDamaged = request.getStatus().equals("DAMAGED");
+        boolean isLost = request.getStatus().equals("LOST");
 
-        if (isOverDue || isDamaged) {
+        User user = libraryCard.getUser();
+        Book book = libraryCard.getBook();
+
+        if (isOverDue || isDamaged || isLost) {
             user.setViolationCount(user.getViolationCount() + 1);
             if (user.getViolationCount() >= 3) {
                 user.setStatus("BANNED");
@@ -146,21 +181,26 @@ public class LibraryCardService {
             userRepository.save(user);
         }
 
-
         if (isDamaged) {
             book.setStatus("DAMAGED");
             libraryCard.setStatus("NEED_COMPENSATION");
-            libraryCard.setCompensationPaid(false);
-            libraryCard.setNote("Book damaged, pending compensation");
-        } else if (isOverDue) {
-            book.setStatus("AVAILABLE");
-            libraryCard.setStatus("OVERDUE");
             libraryCard.setCompensationPaid(true);
-            libraryCard.setNote("Returned late, no damage");
+            libraryCard.setNote("Book damaged, pending compensation");
+
+        } else if (isLost) {
+            book.setStatus("LOST");
+            libraryCard.setStatus("NEED_COMPENSATION");
+            libraryCard.setCompensationPaid(true);
+            libraryCard.setNote("Book lost, pending compensation");
+        }else if (isOverDue) {
+            book.setStatus("AVAILABLE");
+            libraryCard.setStatus("RETURNED");
+            libraryCard.setCompensationPaid(false);
+            libraryCard.setNote("Return late, no damage, do not need to compensate");
         } else {
             book.setStatus("AVAILABLE");
             libraryCard.setStatus("RETURNED");
-            libraryCard.setCompensationPaid(true);
+            libraryCard.setCompensationPaid(false);
             libraryCard.setNote("");
         }
 
@@ -181,7 +221,7 @@ public class LibraryCardService {
                 .build();
     }
 
-    public CompensationResponse payCompensation(BookCompensationRequest request) {
+    public CompensationResponse payCompensation(CompensationRequest request) {
         LibraryCard libraryCard = libraryCardRepository.findByUserIdAndBookId(request.getUserId(), request.getBookId())
                 .orElseThrow(() -> new RException(ErrorCode.BORROW_CARD_NOT_FOUND));
 

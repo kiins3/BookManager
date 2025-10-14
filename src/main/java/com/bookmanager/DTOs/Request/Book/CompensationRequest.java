@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class BookCompensationRequest {
+public class CompensationRequest {
     private Long userId;
 
     private Long bookId;

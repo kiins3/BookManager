@@ -1,6 +1,7 @@
 package com.bookmanager.Models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -34,6 +35,10 @@ public class User {
     @Column(name = "username")
     private String username;
 
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$",
+            message = "Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character"
+    )
     @Column(name = "password")
     private String password;
 
