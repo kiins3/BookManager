@@ -23,5 +23,4 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Book> findFirstByBookTitleAndStatus(BookTitle bookTitle, String available);
 
-    Optional<Book> findByTitle(String title);
 }

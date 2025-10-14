@@ -222,7 +222,7 @@ public class LibraryCardService {
     }
 
     public CompensationResponse payCompensation(CompensationRequest request) {
-        LibraryCard libraryCard = libraryCardRepository.findByUserIdAndBookId(request.getUserId(), request.getBookId())
+        LibraryCard libraryCard = libraryCardRepository.findById(request.getCardId())
                 .orElseThrow(() -> new RException(ErrorCode.BORROW_CARD_NOT_FOUND));
 
         if(!"NEED_COMPENSATION".equals(libraryCard.getStatus())){
@@ -231,10 +231,13 @@ public class LibraryCardService {
 
         Book book = libraryCard.getBook();
         BookTitle bookTitle = book.getBookTitle();
-        if (bookTitle.getCompensationCost() != request.getCompensation())
+        if (bookTitle.getCompensationCost() < request.getCompensation())
             throw new RException(ErrorCode.PAYMENT_FAILED);
 
-        libraryCard.setCompensationPaid(true);
+        if (bookTitle.getCompensationCost() > request.getCompensation())
+            throw new RException(ErrorCode.BACK_MONEY);
+
+        libraryCard.setCompensationPaid(false);
         libraryCard.setStatus("RETURN BOOK AND PAID");
         libraryCard.setNote("BOOK WAS DAMAGED ");
         libraryCardRepository.save(libraryCard);

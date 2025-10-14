@@ -29,7 +29,7 @@ public class BookService {
 
     public List<Book> Bookcreate(CreateBookRequest request) {
         BookTitle bookTitle = bookTitleRepository.findById(request.getBookTitleId())
-                .orElseThrow(() -> new RException(ErrorCode.BOOK_EXISTED));
+                .orElseThrow(() -> new RException(ErrorCode.BOOKTITLE_NOT_FOUND));
 
         int quantity = (request.getQuantity() == null || request.getQuantity() <= 0) ? 1 : request.getQuantity();
         bookTitle.setCopies(bookTitle.getCopies()+quantity);

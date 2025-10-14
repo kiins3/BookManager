@@ -23,7 +23,7 @@ public enum ErrorCode {
     LOGIN_SUCCESS(509,"Login successful"),
     LOGIN_FAILED(510,"Login failed"),
     BOOK_CREATED(600,"Book created"),
-    BOOK_EXISTED(601,"Book already exists"),
+    BOOK_EXISTED(601,"Book already exist"),
     BOOK_NOT_FOUND(602, "Book not found"),
     BOOK_DELETED(603,"Book deleted"),
     BOOK_UPDATED(604,"Book updated"),
@@ -37,13 +37,14 @@ public enum ErrorCode {
     BORROW_CARD_NOT_FOUND(802,"Borrow card not found"),
     UNRETURNED_BOOK(803,"Books not returned or compensated"),
     CARD_DELETED(804,"Borrow card deleted"),
-    NOT_ALLOWED(805,"You are not allowed to borrow book for others"),
+    NOT_ALLOWED(805,"Wrong ID, you are not allowed to borrow book for others"),
     RETURNED(900,"Book feturned"),
     OVERDUE(901,"Return book overdue"),
     DAMAGED(902,"Book damaged, need compensation"),
     INVALID(903, "Invalid operation"),
     COMPENSATION(904,"Compensation paid"),
     PAYMENT_FAILED(905,"Payment failed"),
+    BACK_MONEY(906,"Payment successful, change has been transferred to your wallet"),
     ;
     private int code;
     private String message;

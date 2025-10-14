@@ -11,9 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class CompensationRequest {
-    private Long userId;
-
-    private Long bookId;
+    private Long cardId;
 
     private double compensation;
 
