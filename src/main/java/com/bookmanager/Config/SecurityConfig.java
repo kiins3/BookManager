@@ -30,7 +30,11 @@ public class SecurityConfig {
     JwtConfig jwtConfig;
 
     //private final String[] ENDPOINTS = {"/book/**","/users/**","/login/**","/library/**"};
-    private final String[] PUBLIC_ENDPOINT = {"/login/token", "/login/introspect"};
+    private final String[] PUBLIC_ENDPOINT = {
+            "/login/token",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"};
     private final String[] USER_ENDPOINT = {"/books/getallbooks", "/books/getbookbytitle"
             ,"/booktitles/getallbooktitle","/booktitles/getbooktitlebytitle","/library/borrowbook"
             ,"/library/compensation","/library/userreturnbook","/users/myinfo","/library/my-borrows"};
