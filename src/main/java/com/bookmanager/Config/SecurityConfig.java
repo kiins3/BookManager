@@ -31,12 +31,17 @@ public class SecurityConfig {
 
     //private final String[] ENDPOINTS = {"/book/**","/users/**","/login/**","/library/**"};
     private final String[] PUBLIC_ENDPOINT = {
-            "/login/token",
+            "/login/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"};
-    private final String[] USER_ENDPOINT = {"/books/getallbooks", "/books/getbookbytitle"
-            ,"/booktitles/getallbooktitle","/booktitles/getbooktitlebytitle","/library/borrowbook"
+            "/swagger-ui.html",
+            "/swagger-ui/index.html",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/webjars/**"
+    };
+    private final String[] USER_ENDPOINT = {"/books/getallbooks", "/books/getbookbytitle/**"
+            ,"/booktitles/getallbooktitle","/booktitles/getbooktitlebytitle/**","/library/borrowbook"
             ,"/library/compensation","/library/userreturnbook","/users/myinfo","/library/my-borrows"};
 
     @Bean
@@ -68,7 +73,6 @@ public class SecurityConfig {
                     WriteErrorResponse.writeErrorResponse(response, exception);
                 })
         );
-
 
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())

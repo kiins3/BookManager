@@ -15,6 +15,12 @@ import com.bookmanager.Repositories.LibraryCardRepository;
 import com.bookmanager.Services.LibraryCardService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +31,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/library")
+@Tag(name = "Library Card Management", description = "API quản lý mượn/trả sách trong thư viện")
+@SecurityRequirement(name = "bearerAuth")
 public class LibraryCardController {
     @Autowired
     private LibraryCardRepository libraryCardRepository;
@@ -33,6 +41,16 @@ public class LibraryCardController {
     private LibraryCardService libraryCardService;
 
     @PostMapping("/borrowbook")
+    @Operation(
+            summary = "Mượn sách",
+            description = "Người dùng mượn sách từ thư viện. Chỉ mượn được nếu không có sách chưa trả hoặc đang bị phạt"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Mượn sách thành công"),
+            @ApiResponse(responseCode = "400", description = "Có sách chưa trả hoặc sách không khả dụng"),
+            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
+            @ApiResponse(responseCode = "403", description = "Không có quyền mượn sách cho người khác")
+    })
     BaseResponse<BorrowBookResponse> borrowBook(@RequestBody BorrowBookRequest request){
         BaseResponse<BorrowBookResponse> response = new BaseResponse<>();
         response.setResult(libraryCardService.borrowBook(request));
@@ -42,6 +60,15 @@ public class LibraryCardController {
     }
 
     @GetMapping("/listborrowcard")
+    @Operation(
+            summary = "Lấy danh sách tất cả phiếu mượn",
+            description = "Xem danh sách tất cả các phiếu mượn sách trong hệ thống (Dành cho Admin/Librarian)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công"),
+            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
+            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
+    })
     ResponseEntity<BaseResponse<List<ListBorrowCardResponse>>> getListBorrowCardResponse(){
         BaseResponse<List<ListBorrowCardResponse>> response = new BaseResponse<>();
         response.setResult(libraryCardService.getListBorrowCardResponse());
@@ -51,6 +78,16 @@ public class LibraryCardController {
     }
 
     @PutMapping("/updateborrowcard")
+    @Operation(
+            summary = "Cập nhật trạng thái phiếu mượn",
+            description = "Cập nhật trạng thái của phiếu mượn sách"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy phiếu mượn"),
+            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
+            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
+    })
     ResponseEntity<BaseResponse<UpdateBorrowCardResponse>> updateBorrowCard(@RequestBody UpdateBorrowCardRequest request){
         BaseResponse<UpdateBorrowCardResponse> response = new BaseResponse<>();
         response.setResult(libraryCardService.updateBorrowCard(request));
@@ -60,7 +97,17 @@ public class LibraryCardController {
     }
 
     @DeleteMapping("/deleteborrowcard/{id}")
-    ResponseEntity<BaseResponse<LibraryCard>> deleteBorrowCard(@PathVariable Long id) {
+    @Operation(
+            summary = "Xóa phiếu mượn",
+            description = "Xóa một phiếu mượn sách khỏi hệ thống"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Xóa thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy phiếu mượn"),
+            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
+            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
+    })
+    ResponseEntity<BaseResponse<LibraryCard>> deleteBorrowCard(@Parameter(description = "ID của phiếu mượn cần xóa", required = true) @PathVariable Long id) {
         ErrorCode result = libraryCardService.deleteBorrowCard(id);
         BaseResponse<LibraryCard> response = new BaseResponse<>();
         response.setCode(result.getCode());
@@ -69,6 +116,16 @@ public class LibraryCardController {
     }
 
     @PostMapping("/userreturnbook")
+    @Operation(
+            summary = "Người dùng yêu cầu trả sách",
+            description = "Người dùng gửi yêu cầu trả sách với ghi chú về tình trạng sách"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Gửi yêu cầu trả sách thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy phiếu mượn"),
+            @ApiResponse(responseCode = "400", description = "Thao tác không hợp lệ"),
+            @ApiResponse(responseCode = "401", description = "Chưa xác thực")
+    })
     ResponseEntity<BaseResponse<UserReturnBookResponse>> getUserReturnBookResponse(@RequestBody UserReturnBookRequest request){
         BaseResponse<UserReturnBookResponse> response = new BaseResponse<>();
         response.setResult(libraryCardService.userReturnBook(request));
@@ -78,6 +135,16 @@ public class LibraryCardController {
     }
 
     @PostMapping("/returnbook")
+    @Operation(
+            summary = "Xử lý trả sách (Librarian)",
+            description = "Thủ thư xác nhận trả sách và xử lý các trường hợp: trả đúng hạn, trễ hạn, hư hỏng, mất sách"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Xử lý trả sách thành công"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy phiếu mượn"),
+            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
+            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
+    })
     BaseResponse<ReturnBookResponse> returnBook(@RequestBody ReturnBookRequest request){
         BaseResponse<ReturnBookResponse> response = new BaseResponse<>();
         response.setResult(libraryCardService.returnBook(request));
@@ -85,6 +152,16 @@ public class LibraryCardController {
     }
 
     @PostMapping("/compensation")
+    @Operation(
+            summary = "Thanh toán bồi thường",
+            description = "Người dùng thanh toán tiền bồi thường cho sách hư hỏng hoặc mất"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Thanh toán thành công"),
+            @ApiResponse(responseCode = "400", description = "Số tiền không hợp lệ hoặc thao tác không đúng"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy phiếu mượn"),
+            @ApiResponse(responseCode = "401", description = "Chưa xác thực")
+    })
     BaseResponse<CompensationResponse> payCompensation(@RequestBody CompensationRequest request){
         BaseResponse<CompensationResponse> response = new BaseResponse<>();
         response.setResult(libraryCardService.payCompensation(request));
@@ -94,6 +171,15 @@ public class LibraryCardController {
     }
 
     @GetMapping("/my-borrows")
+    @Operation(
+            summary = "Xem lịch sử mượn sách của tôi",
+            description = "Người dùng xem lịch sử mượn sách của chính mình"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lấy lịch sử thành công"),
+            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+    })
     public ResponseEntity<BaseResponse<List<UserBorrowHistoryResponse>>> getMyBorrowHistory(HttpServletRequest request) throws ParseException, JOSEException {
         String token = request.getHeader("Authorization").substring(7);
         SignedJWT signedJWT = SignedJWT.parse(token);

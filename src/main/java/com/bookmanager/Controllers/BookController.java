@@ -29,13 +29,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/books")
+@Tag(name = "Book Management", description = "API quản lý sách trong thư viện")
+@SecurityRequirement(name = "bearerAuth")
 public class BookController {
     @Autowired
     private BookService bookService;
 
     @PostMapping("/post")
-    @Tag(name = "Book Management", description = "API quản lý sách trong thư viện")
-    @SecurityRequirement(name = "bearerAuth")
     @Operation(
             summary = "Tạo sách mới",
             description = "Thêm một hoặc nhiều bản sao của một đầu sách vào thư viện"

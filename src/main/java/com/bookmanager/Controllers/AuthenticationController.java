@@ -9,6 +9,10 @@ import com.bookmanager.Exception.ErrorCode;
 import com.bookmanager.Repositories.UserRepository;
 import com.bookmanager.Services.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +23,7 @@ import java.text.ParseException;
 
 @RestController
 @RequestMapping("/login")
+@Tag(name = "Authentication", description = "API xác thực và đăng nhập")
 public class AuthenticationController {
 
     @Autowired
@@ -28,6 +33,15 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
 
     @PostMapping("/token")
+    @Operation(
+            summary = "Đăng nhập",
+            description = "Đăng nhập vào hệ thống và nhận JWT token để sử dụng cho các API khác"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Đăng nhập thành công, trả về JWT token"),
+            @ApiResponse(responseCode = "400", description = "Sai username hoặc password"),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
+    })
     ResponseEntity<BaseResponse<AuthenticationResponse>> Authenticate(@RequestBody AuthenticationRequest request){
         BaseResponse<AuthenticationResponse> response = new BaseResponse<>();
         response.setCode(ErrorCode.LOGIN_SUCCESS.getCode());
