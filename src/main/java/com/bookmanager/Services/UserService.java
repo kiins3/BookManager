@@ -33,14 +33,15 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
 
-    public User createRequest(UserCreationRequest request){
+    public ErrorCode createRequest(UserCreationRequest request){
         if (userRepository.existsByUsername(request.getUsername()))
             throw new RException(ErrorCode.USERNAME_EXISTED);
         if (userRepository.existsByEmail(request.getEmail()))
             throw new RException(ErrorCode.EMAIL_EXISTED);
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        return userRepository.save(user);
+        userRepository.save(user);
+        return ErrorCode.USER_CREATED;
     }
 
     public GetUserResponse getUserById(long id){
@@ -63,14 +64,8 @@ public class UserService {
 
     public List<GetUserResponse> getUserByName(String name){
         String normalizedInput = TextTranf.removeVietnameseAccents(name.toLowerCase());
-        List<User> users = userRepository.findAll();
-        List<User> matchedUsers = users.stream()
-                .filter(user -> {
-                    String nameNormalized = TextTranf.removeVietnameseAccents(user.getName().toLowerCase());
-                    return nameNormalized.contains(normalizedInput);
-                })
-                .toList();
-        if(matchedUsers.isEmpty())
+        List<User> matchedUsers = userRepository.findByNameUnsignedLike(normalizedInput);
+        if (matchedUsers.isEmpty())
             throw new RException(ErrorCode.USER_NOT_FOUND);
         return userMapper.toGetUserResponses(matchedUsers);
     }

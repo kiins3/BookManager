@@ -37,11 +37,6 @@ public class AuthenticationController {
             summary = "Đăng nhập",
             description = "Đăng nhập vào hệ thống và nhận JWT token để sử dụng cho các API khác"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Đăng nhập thành công, trả về JWT token"),
-            @ApiResponse(responseCode = "400", description = "Sai username hoặc password"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
-    })
     ResponseEntity<BaseResponse<AuthenticationResponse>> Authenticate(@RequestBody AuthenticationRequest request){
         BaseResponse<AuthenticationResponse> response = new BaseResponse<>();
         response.setCode(ErrorCode.LOGIN_SUCCESS.getCode());

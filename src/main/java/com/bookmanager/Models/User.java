@@ -57,6 +57,9 @@ public class User {
     @Column (name = "status")
     private String status;
 
+    @Column (name = "nameUnsigned")
+    private String nameUnsigned;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LibraryCard> borrowCards = new ArrayList<>();
 }

@@ -3,6 +3,7 @@ package com.bookmanager.Controllers;
 import com.bookmanager.DTOs.Request.BookTitle.BookTitleCreationRequest;
 import com.bookmanager.DTOs.Request.BookTitle.BookTitleUpdateRequest;
 import com.bookmanager.DTOs.Response.BaseResponse;
+import com.bookmanager.DTOs.Response.GetBookTitleResponse;
 import com.bookmanager.DTOs.Response.UpdateBookTitleResponse;
 import com.bookmanager.Exception.ErrorCode;
 import com.bookmanager.Models.BookTitle;
@@ -51,8 +52,8 @@ public class BookTitleController {
             summary = "Lấy danh sách tất cả đầu sách",
             description = "Trả về danh sách tất cả các đầu sách trong hệ thống"
     )
-    BaseResponse<List<BookTitle>> getAllBookTitles() {
-        BaseResponse<List<BookTitle>> response = new BaseResponse<>();
+    BaseResponse<List<GetBookTitleResponse>> getAllBookTitles() {
+        BaseResponse<List<GetBookTitleResponse>> response = new BaseResponse<>();
         response.setResult(bookTitleService.getAllBookTitles());
         response.setCode(ErrorCode.SUCCESS.getCode());
         response.setMessage(ErrorCode.SUCCESS.getMessage());
@@ -69,8 +70,8 @@ public class BookTitleController {
             @ApiResponse(responseCode = "404", description = "Không tìm thấy đầu sách"),
             @ApiResponse(responseCode = "401", description = "Chưa xác thực")
     })
-    BaseResponse<List<BookTitle>> getBookTitleByTitle(@Parameter(description = "Tên đầu sách cần tìm", required = true) @PathVariable String title) {
-        BaseResponse<List<BookTitle>> response = new BaseResponse<>();
+    BaseResponse<List<GetBookTitleResponse>> getBookTitleByTitle(@Parameter(description = "Tên đầu sách cần tìm", required = true) @PathVariable String title) {
+        BaseResponse<List<GetBookTitleResponse>> response = new BaseResponse<>();
         response.setResult(bookTitleService.getBookTitleByTitle(title));
         response.setCode(ErrorCode.SUCCESS.getCode());
         response.setMessage(ErrorCode.SUCCESS.getMessage());

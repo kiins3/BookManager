@@ -1,7 +1,10 @@
 package com.bookmanager.Repositories;
 
+import com.bookmanager.Models.Book;
 import com.bookmanager.Models.BookTitle;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,4 +21,6 @@ public interface BookTitleRepository extends JpaRepository<BookTitle, Long> {
 
     BookTitle deleteBookTitleById(BookTitle booktitle);
 
+    @Query("SELECT u FROM BookTitle u WHERE u.titleUnsigned LIKE %:titleUnsigned%")
+    List<BookTitle> findByTitleUnsignedContaining(String titleUnsigned);
 }

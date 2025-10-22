@@ -1,12 +1,15 @@
 package com.bookmanager.Mapper;
 
 import com.bookmanager.DTOs.Request.BookTitle.BookTitleUpdateRequest;
+import com.bookmanager.DTOs.Response.GetBookTitleResponse;
 import com.bookmanager.DTOs.Response.UpdateBookTitleResponse;
 import com.bookmanager.Models.BookTitle;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface BookTitleMapper {
@@ -15,4 +18,7 @@ public interface BookTitleMapper {
     void UpdateBookTitle(BookTitleUpdateRequest request, @MappingTarget BookTitle bookTitle);
 
     UpdateBookTitleResponse toUpdateBookTitleResponse(BookTitle bookTitle);
+
+    GetBookTitleResponse toGetBookTitleResponse(BookTitle bookTitle);
+    List<GetBookTitleResponse> toGetBookTitleResponses(List<BookTitle> bookTitles);
 }

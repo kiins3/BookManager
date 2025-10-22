@@ -40,12 +40,7 @@ public class BookController {
             summary = "Tạo sách mới",
             description = "Thêm một hoặc nhiều bản sao của một đầu sách vào thư viện"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tạo sách thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
-            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
-    })
+
     ResponseEntity<BaseResponse<List<Book>>> Bookcreate(@RequestBody CreateBookRequest request) {
         BaseResponse <List<Book>> response = new BaseResponse<>();
         response.setResult(bookService.Bookcreate(request));
@@ -87,7 +82,7 @@ public class BookController {
     )
     ResponseEntity<BaseResponse<List<GetBookByTitleResponse>>> findByBookTitle_Title(@PathVariable String title) {
         BaseResponse<List<GetBookByTitleResponse>> response = new BaseResponse<>();
-        response.setResult(bookService.findByBookTitle_Title(title));
+        response.setResult(bookService.findByBookTitle_TitleUnsignedContaining(title));
         response.setCode(ErrorCode.SUCCESS.getCode());
         response.setMessage(ErrorCode.SUCCESS.getMessage());
         return ResponseEntity.ok(response);

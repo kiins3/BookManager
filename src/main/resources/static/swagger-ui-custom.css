@@ -1,0 +1,30 @@
+/* Ẩn Curl command */
+.curl-command,
+.curl,
+.microlight {
+    display: none !important;
+}
+
+/* Ẩn Request URL */
+.request-url,
+.opblock-section-request-url {
+    display: none !important;
+}
+
+/* Ẩn Response Headers */
+.response-col_header,
+.response-col_links,
+.response-headers,
+.responses-header {
+    display: none !important;
+}
+
+/* Ẩn tab Headers trong response */
+.tab-header {
+    display: none !important;
+}
+
+/* Ẩn duration time */
+.response-control-media-type__accept-message {
+    display: none !important;
+}

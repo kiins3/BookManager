@@ -33,12 +33,12 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINT = {
             "/login/**",
             "/v3/api-docs/**",
+            "/v3/api-docs.yaml",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/swagger-ui/index.html",
             "/swagger-resources/**",
-            "/swagger-ui/**",
-            "/webjars/**"
+            "/webjars/**",
+            "/api-docs/**"
     };
     private final String[] USER_ENDPOINT = {"/books/getallbooks", "/books/getbookbytitle/**"
             ,"/booktitles/getallbooktitle","/booktitles/getbooktitlebytitle/**","/library/borrowbook"

@@ -2,6 +2,7 @@ package com.bookmanager.Services;
 
 import com.bookmanager.DTOs.Request.BookTitle.BookTitleCreationRequest;
 import com.bookmanager.DTOs.Request.BookTitle.BookTitleUpdateRequest;
+import com.bookmanager.DTOs.Response.GetBookTitleResponse;
 import com.bookmanager.DTOs.Response.UpdateBookTitleResponse;
 import com.bookmanager.Exception.ErrorCode;
 import com.bookmanager.Exception.RException;
@@ -36,24 +37,20 @@ public class BookTitleService {
         return bookTitleRepository.findById(id);
     }
 
-    public List<BookTitle> getAllBookTitles() {
-        return bookTitleRepository.findAll();
+    public List<GetBookTitleResponse> getAllBookTitles() {
+        List<BookTitle> allTitles = bookTitleRepository.findAll();
+        return bookTitleMapper.toGetBookTitleResponses(allTitles);
     }
 
-    public List<BookTitle> getBookTitleByTitle(String Title) {
-        String normalizedTitle = TextTranf.removeVietnameseAccents(Title.toLowerCase());
-        List<BookTitle> bookTitles = bookTitleRepository.findAll();
-        List<BookTitle> bookTitleMatched = bookTitles.stream()
-                .filter(bookTitle -> {
-                    String bookTitleNormalized = TextTranf.removeVietnameseAccents(bookTitle.getTitle().toLowerCase());
-                    return bookTitleNormalized.contains(normalizedTitle);
-                })
-                .toList();
+    public List<GetBookTitleResponse> getBookTitleByTitle(String title) {
+        String normalizedTitle = TextTranf.removeVietnameseAccents(title.toLowerCase());
+        List<BookTitle> bookTitleMatched = bookTitleRepository.findByTitleUnsignedContaining(normalizedTitle);
 
         if (bookTitleMatched.isEmpty()) {
             throw new RException(ErrorCode.BOOKTITLE_NOT_FOUND);
         }
-        return bookTitleMatched;
+
+        return bookTitleMapper.toGetBookTitleResponses(bookTitleMatched);
     }
 
     public BookTitle createBookTitle(BookTitleCreationRequest request) {

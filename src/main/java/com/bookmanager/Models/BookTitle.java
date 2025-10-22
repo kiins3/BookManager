@@ -6,6 +6,8 @@ import lombok.*;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -18,6 +20,9 @@ public class BookTitle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
+
+    @ManyToMany(mappedBy = "bookTitles")
+    private Set<Category> categories = new HashSet<>();
 
     @Column(name = "title")
     private String title;
@@ -40,4 +45,6 @@ public class BookTitle {
     @Column(name = "copies")
     private int copies;
 
+    @Column(name = "titleUnsigned")
+    private String titleUnsigned;
 }

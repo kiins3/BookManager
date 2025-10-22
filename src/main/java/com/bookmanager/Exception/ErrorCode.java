@@ -13,7 +13,7 @@ public enum ErrorCode {
     INVALID_TOKEN(400, "Invalid Token"),
     USER_CREATED(500,"User created"),
     USERNAME_EXISTED(501,"Username already exists"),
-    USER_NOT_FOUND(502, "User not Found"),
+    USER_NOT_FOUND(502, "User not found"),
     EMAIL_EXISTED(503,"Email already exists"),
     USER_DELETED(504,"User deleted"),
     USER_UPDATED(505,"User updated"),

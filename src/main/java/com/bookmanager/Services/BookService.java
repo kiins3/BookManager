@@ -99,15 +99,9 @@ public class BookService {
                 .build();
     }
 
-    public List<GetBookByTitleResponse> findByBookTitle_Title(String title) {
+    public List<GetBookByTitleResponse> findByBookTitle_TitleUnsignedContaining(String title) {
         String normalizedTitle = TextTranf.removeVietnameseAccents(title.toLowerCase());
-        List<Book> books = bookRepository.findAll();
-        List<Book> bookMatched = books.stream()
-                .filter(book->{
-                    String titleNormalized = TextTranf.removeVietnameseAccents(book.getBookTitle().getTitle().toLowerCase());
-                    return titleNormalized.contains(normalizedTitle);
-                })
-                .toList();
+        List<Book> bookMatched = bookRepository.findByBookTitle_TitleUnsignedContaining(normalizedTitle);
         if (bookMatched.isEmpty()) {
             throw new RException(ErrorCode.BOOK_NOT_FOUND);
         }

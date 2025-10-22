@@ -40,17 +40,12 @@ public class UserController {
             summary = "Tạo người dùng mới",
             description = "Admin tạo tài khoản người dùng mới trong hệ thống"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tạo người dùng thành công"),
-            @ApiResponse(responseCode = "400", description = "Username hoặc Email đã tồn tại"),
-            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
-    })
+
     ResponseEntity<BaseResponse<User>> createUser(@RequestBody UserCreationRequest request) {
+        ErrorCode result = userService.createRequest(request);
         BaseResponse<User> response = new BaseResponse<>();
         response.setCode(ErrorCode.USER_CREATED.getCode());
         response.setMessage(ErrorCode.USER_CREATED.getMessage());
-        response.setResult(userService.createRequest(request));
         return ResponseEntity.ok(response);
     }
 
@@ -59,12 +54,7 @@ public class UserController {
             summary = "Lấy thông tin người dùng theo ID",
             description = "Xem thông tin chi tiết của một người dùng cụ thể"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lấy thông tin thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng"),
-            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
-    })
+
     ResponseEntity<BaseResponse<GetUserResponse>> getUserById(@Parameter(description = "ID của người dùng", required = true) @PathVariable long id) {
         BaseResponse<GetUserResponse> response = new BaseResponse<>();
         response.setCode(ErrorCode.SUCCESS.getCode());
@@ -78,12 +68,7 @@ public class UserController {
             summary = "Tìm người dùng theo tên",
             description = "Tìm kiếm người dùng theo tên (hỗ trợ tìm kiếm gần đúng và bỏ dấu tiếng Việt)"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tìm kiếm thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng"),
-            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
-    })
+
     ResponseEntity<BaseResponse<List<GetUserResponse>>> getUserByName(@Parameter(description = "Tên người dùng cần tìm", required = true) @PathVariable String name) {
         BaseResponse<List<GetUserResponse>> response = new BaseResponse<>();
         response.setCode(ErrorCode.SUCCESS.getCode());
@@ -97,11 +82,7 @@ public class UserController {
             summary = "Lấy danh sách tất cả người dùng",
             description = "Xem danh sách tất cả người dùng trong hệ thống"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
-    })
+
     ResponseEntity<BaseResponse<List<GetUserResponse>>> findAll() {
         BaseResponse<List<GetUserResponse>> response = new BaseResponse<>();
         response.setCode(ErrorCode.SUCCESS.getCode());
@@ -120,12 +101,7 @@ public class UserController {
             summary = "Xóa người dùng",
             description = "Xóa một người dùng khỏi hệ thống"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Xóa người dùng thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng"),
-            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
-    })
+
     ResponseEntity<BaseResponse<User>> deleteUserById(@Parameter(description = "ID của người dùng cần xóa", required = true) @PathVariable long id) {
         ErrorCode result = userService.deleteUserById(id);
         BaseResponse<User> response = new BaseResponse<>();
@@ -139,12 +115,7 @@ public class UserController {
             summary = "Cập nhật thông tin người dùng",
             description = "Admin cập nhật thông tin của người dùng (có thể cập nhật một phần)"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng"),
-            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
-            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập")
-    })
+
     public ResponseEntity<BaseResponse<UpdateUserResponse>> updateUser(@RequestBody UserUpdateRequest request) {
         BaseResponse<UpdateUserResponse> response = new BaseResponse<>();
         response.setCode(ErrorCode.USER_UPDATED.getCode());
@@ -158,11 +129,7 @@ public class UserController {
             summary = "Xem thông tin cá nhân",
             description = "Người dùng xem thông tin tài khoản của chính mình"
     )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lấy thông tin thành công"),
-            @ApiResponse(responseCode = "401", description = "Chưa xác thực"),
-            @ApiResponse(responseCode = "404", description = "Không tìm thấy người dùng")
-    })
+
     public ResponseEntity<BaseResponse<UserInfoResponse>> getUserInfo(HttpServletRequest request) throws ParseException, JOSEException {
         String token = request.getHeader("Authorization").substring(7);
         SignedJWT signedJWT = SignedJWT.parse(token);
