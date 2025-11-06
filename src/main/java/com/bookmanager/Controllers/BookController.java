@@ -43,7 +43,6 @@ public class BookController {
 
     ResponseEntity<BaseResponse<List<Book>>> Bookcreate(@RequestBody CreateBookRequest request) {
         BaseResponse <List<Book>> response = new BaseResponse<>();
-        response.setResult(bookService.Bookcreate(request));
         response.setCode(ErrorCode.BOOK_CREATED.getCode());
         response.setMessage(ErrorCode.BOOK_CREATED.getMessage());
         return ResponseEntity.ok(response);
@@ -75,12 +74,12 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/getbookbytitle/{title}")
+    @GetMapping("/getbooktitle/{title}")
     @Operation(
             summary = "Tìm sách theo tên",
             description = "Tìm kiếm sách theo tên (hỗ trợ tìm kiếm gần đúng)"
     )
-    ResponseEntity<BaseResponse<List<GetBookByTitleResponse>>> findByBookTitle_Title(@PathVariable String title) {
+    ResponseEntity<BaseResponse<List<GetBookByTitleResponse>>> findByBookTitle_Title(@PathVariable  String title) {
         BaseResponse<List<GetBookByTitleResponse>> response = new BaseResponse<>();
         response.setResult(bookService.findByBookTitle_TitleUnsignedContaining(title));
         response.setCode(ErrorCode.SUCCESS.getCode());

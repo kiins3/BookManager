@@ -80,18 +80,4 @@ public class AuthenticationService {
             throw new RException(ErrorCode.INVALID_TOKEN);
         }
     }
-
-    /*public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
-        var token = request.getToken();
-
-        JWSVerifier verifier = new MACVerifier(jwtConfig.getSecretKey().getBytes());
-        SignedJWT signedJWT = SignedJWT.parse(token);
-
-        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-        var verified = signedJWT.verify(verifier);
-
-        return IntrospectResponse.builder()
-                .valid(verified && expiryTime.after(new Date()))
-                .build();
-    }*/
 }
