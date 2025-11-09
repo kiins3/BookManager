@@ -74,7 +74,7 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/getbooktitle/{title}")
+    @GetMapping("/getbookbytitle/{title}")
     @Operation(
             summary = "Tìm sách theo tên",
             description = "Tìm kiếm sách theo tên (hỗ trợ tìm kiếm gần đúng)"

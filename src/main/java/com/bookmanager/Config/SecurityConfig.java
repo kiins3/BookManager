@@ -27,11 +27,11 @@ import java.util.List;
 public class SecurityConfig {
 
     @Autowired
-    private JwtConfig jwtConfig;
+    JwtConfig jwtConfig;
 
     //private final String[] ENDPOINTS = {"/book/**","/users/**","/login/**","/library/**"};
     private final String[] PUBLIC_ENDPOINT = {
-            "/login/token",
+            "/login/**",
             "/v3/api-docs/**",
             "/v3/api-docs.yaml",
             "/swagger-ui/**",
@@ -46,10 +46,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .securityMatcher("/**")
-                .authorizeHttpRequests(request ->
-                request.requestMatchers("/**").permitAll()
+        httpSecurity.authorizeHttpRequests(request ->
+                request.requestMatchers(PUBLIC_ENDPOINT).permitAll()
                         .requestMatchers(USER_ENDPOINT)
                         .access((auth, context) -> {
                             var authorities = auth.get().getAuthorities();
