@@ -1,0 +1,41 @@
+# Runs the API (on Tomcat) with SQL Server:
+#   cp .env.example .env
+#   docker compose up -d --build
+# API:     http://localhost:8081
+# Swagger: http://localhost:8081/swagger-ui.html
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD:-BookManager@2026}
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    # The check also creates the database, so the API starts only once it exists
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"IF DB_ID('BookManagerDB') IS NULL CREATE DATABASE BookManagerDB\" -b"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 20s
+
+  api:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DB_URL: jdbc:sqlserver://sqlserver:1433;databaseName=BookManagerDB;encrypt=true;trustServerCertificate=true
+      DB_USERNAME: sa
+      DB_PASSWORD: ${DB_PASSWORD:-BookManager@2026}
+    ports:
+      - "8081:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+volumes:
+  sqlserver-data:
